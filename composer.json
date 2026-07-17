@@ -1,0 +1,92 @@
+{
+    "name": "paysera/lib-checkout-integration-sdk",
+    "description": "Paysera PHP checkout integration SDK",
+    "type": "library",
+    "version": "2.3.0",
+    "license": "LGPL-3.0-or-later",
+    "keywords": ["paysera", "checkout", "payment", "sdk", "payment-gateway", "jwt", "psr"],
+    "support": {
+        "issues": "https://github.com/paysera/lib-checkout-integration-sdk/issues",
+        "source": "https://github.com/paysera/lib-checkout-integration-sdk",
+        "docs": "https://developers.paysera.com"
+    },
+    "autoload": {
+        "psr-4": {
+            "Paysera\\CheckoutSdk\\": "src/"
+        },
+        "files": [
+            "src/Polyfill/bootstrap.php"
+        ]
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Paysera\\CheckoutSdk\\Tests\\": "tests/"
+        }
+    },
+    "authors": [
+        {
+            "name": "Paysera",
+            "homepage": "https://www.paysera.com/"
+        }
+    ],
+    "require": {
+        "php": "^7.4 || ^8.0",
+        "ext-curl": "*",
+        "ext-json": "*",
+        "fig/http-message-util": "^1.1",
+        "firebase/php-jwt": "^6.10 || ^7.0",
+        "nyholm/psr7": "^1.8",
+        "php-http/client-common": "^2.7",
+        "php-http/curl-client": "^2.3",
+        "php-http/logger-plugin": "^1.3 || ^1.4",
+        "php-http/message": "^1.16",
+        "psr/cache": "^1.0 || ^2.0 || ^3.0",
+        "psr/clock": "^1.0",
+        "psr/container": "^1.1 || ^2.0",
+        "psr/log": "^1.1 || ^3.0"
+    },
+    "require-dev": {
+        "friendsofphp/php-cs-fixer": "^3.70",
+        "php-http/mock-client": "^1.6",
+        "phpstan/extension-installer": "^1.4",
+        "phpstan/phpstan-deprecation-rules": "^2.0",
+        "phpstan/phpstan-phpunit": "^2.0",
+        "phpstan/phpstan-strict-rules": "^2.0",
+        "phpunit/phpunit": "^9.6"
+    },
+    "scripts": {
+        "analyse": [
+            "@composer install --no-interaction",
+            "vendor/bin/phpstan analyse"
+        ],
+        "baseline": [
+            "@composer update --no-interaction",
+            "vendor/bin/phpstan analyse --generate-baseline --allow-empty-baseline"
+        ],
+        "format": [
+            "@composer update --no-interaction",
+            "vendor/bin/php-cs-fixer fix --allow-risky=yes"
+        ],
+        "phpunit": [
+            "@composer update --no-interaction",
+            "php ./vendor/bin/phpunit --do-not-cache-result"
+        ],
+        "test-coverage": [
+            "@composer update --no-interaction",
+            "php ./vendor/bin/phpunit --do-not-cache-result --coverage-html coverage"
+        ],
+        "php-cs-fixer": [
+            "@composer update --no-interaction",
+            "vendor/bin/php-cs-fixer"
+        ]
+    },
+    "config": {
+        "sort-packages": true,
+        "allow-plugins": {
+            "phpstan/extension-installer": true,
+            "php-http/discovery": true
+        }
+    },
+    "prefer-stable": true,
+    "minimum-stability": "stable"
+}
