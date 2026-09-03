@@ -1,0 +1,207 @@
+<?php
+
+declare(strict_types=1);
+
+namespace Paysera\CheckoutSdk\Service\Validator;
+
+use Paysera\CheckoutSdk\Entity\PaymentCurrency;
+use Paysera\CheckoutSdk\Entity\PaymentOrderCreateRequest;
+use Paysera\CheckoutSdk\Entity\PaymentOrder\Purchase;
+use Paysera\CheckoutSdk\Entity\PaymentOrder\RedirectUrls;
+use Paysera\CheckoutSdk\Entity\Metadata;
+use Paysera\CheckoutSdk\Exception\ValidationException;
+use Paysera\CheckoutSdk\Service\Validator\Common\ErrorBag;
+use Paysera\CheckoutSdk\Service\Validator\Common\StringValidator;
+use Paysera\CheckoutSdk\Service\Validator\Common\ValidatorErrorBagAppendHandler;
+use Paysera\CheckoutSdk\Service\Validator\Common\ValidatorExceptionHandler;
+
+class PaymentOrderCreateRequestValidator
+{
+    private StringValidator $stringValidator;
+    private ValidatorErrorBagAppendHandler $appendHandler;
+    private ValidatorExceptionHandler $exceptionHandler;
+    private ErrorBag $errorBag;
+
+    public function __construct(
+        StringValidator $stringValidator,
+        ValidatorErrorBagAppendHandler $appendHandler,
+        ValidatorExceptionHandler $exceptionHandler
+    ) {
+        $this->stringValidator = $stringValidator;
+        $this->appendHandler = $appendHandler;
+        $this->exceptionHandler = $exceptionHandler;
+
+        $this->errorBag = new ErrorBag();
+    }
+
+    /**
+     * @throws ValidationException
+     */
+    public function validate(PaymentOrderCreateRequest $request): void
+    {
+        $this->errorBag = new ErrorBag();
+        $this->appendHandler->setMainErrorBag($this->errorBag);
+
+        $this->validatePurchase($request->getPurchase());
+
+        if ($request->getRedirectUrls() !== null) {
+            $this->validateRedirectUrls($request->getRedirectUrls());
+        }
+
+        if ($request->getSource() !== null) {
+            $this->stringValidator->validateMaxLength(
+                $request->getSource(),
+                'source',
+                255,
+                $this->appendHandler
+            );
+        }
+
+        $this->validateMetadata($request->getMetadata());
+
+        $this->exceptionHandler->handle($this->errorBag);
+    }
+
+    private function validatePurchase(Purchase $purchase): void
+    {
+        if ($purchase->getReference() === '') {
+            $this->errorBag->addError('purchase.reference', 'purchase.reference is required');
+        }
+
+        $this->stringValidator->validateMaxLength(
+            $purchase->getReference(),
+            'purchase.reference',
+            255,
+            $this->appendHandler
+        );
+
+        if ($purchase->getAmount() <= 0) {
+            $this->errorBag->addError('purchase.amount', 'purchase.amount must be greater than 0');
+        }
+
+        if (!in_array($purchase->getCurrency(), PaymentCurrency::SUPPORTED_CURRENCIES, true)) {
+            $this->errorBag->addError(
+                'purchase.currency',
+                'purchase.currency must be one of: ' . implode(', ', PaymentCurrency::SUPPORTED_CURRENCIES) . '.'
+            );
+        }
+    }
+
+    private function validateRedirectUrls(RedirectUrls $redirectUrls): void
+    {
+        if ($redirectUrls->getSuccessUrl() !== null) {
+            $this->stringValidator->validateMaxLength(
+                $redirectUrls->getSuccessUrl(),
+                'redirect_urls.success_url',
+                2048,
+                $this->appendHandler
+            );
+            $this->stringValidator->validateUrl(
+                $redirectUrls->getSuccessUrl(),
+                'redirect_urls.success_url',
+                $this->appendHandler
+            );
+        }
+
+        if ($redirectUrls->getFailureUrl() !== null) {
+            $this->stringValidator->validateMaxLength(
+                $redirectUrls->getFailureUrl(),
+                'redirect_urls.failure_url',
+                2048,
+                $this->appendHandler
+            );
+            $this->stringValidator->validateUrl(
+                $redirectUrls->getFailureUrl(),
+                'redirect_urls.failure_url',
+                $this->appendHandler
+            );
+        }
+
+        if ($redirectUrls->getCallbackUrl() !== null) {
+            $this->stringValidator->validateMaxLength(
+                $redirectUrls->getCallbackUrl(),
+                'redirect_urls.callback_url',
+                2048,
+                $this->appendHandler
+            );
+            $this->stringValidator->validateUrl(
+                $redirectUrls->getCallbackUrl(),
+                'redirect_urls.callback_url',
+                $this->appendHandler
+            );
+        }
+
+        if ($redirectUrls->getCancelUrl() !== null) {
+            $this->stringValidator->validateMaxLength(
+                $redirectUrls->getCancelUrl(),
+                'redirect_urls.cancel_url',
+                2048,
+                $this->appendHandler
+            );
+            $this->stringValidator->validateUrl(
+                $redirectUrls->getCancelUrl(),
+                'redirect_urls.cancel_url',
+                $this->appendHandler
+            );
+        }
+    }
+
+    private function validateMetadata(Metadata $metadata): void
+    {
+        if ($metadata->getPlatform() !== null) {
+            $this->stringValidator->validateMaxLength(
+                $metadata->getPlatform(),
+                'metadata.platform',
+                255,
+                $this->appendHandler
+            );
+        }
+
+        if ($metadata->getPlatformVersion() !== null) {
+            $this->stringValidator->validateMaxLength(
+                $metadata->getPlatformVersion(),
+                'metadata.platform_version',
+                255,
+                $this->appendHandler
+            );
+        }
+
+        if ($metadata->getPluginName() !== null) {
+            $this->stringValidator->validateMaxLength(
+                $metadata->getPluginName(),
+                'metadata.plugin_name',
+                255,
+                $this->appendHandler
+            );
+        }
+
+        if ($metadata->getPluginVersion() !== null) {
+            $this->stringValidator->validateMaxLength(
+                $metadata->getPluginVersion(),
+                'metadata.plugin_version',
+                255,
+                $this->appendHandler
+            );
+        }
+
+        foreach ($metadata->getCustomFields() as $key => $value) {
+            if (!is_string($key) || !is_string($value)) {
+                $this->errorBag->addError('metadata.custom', 'metadata custom field keys and values must be strings');
+                break;
+            }
+
+            $this->stringValidator->validateMaxLength(
+                $key,
+                "metadata.custom.key",
+                255,
+                $this->appendHandler
+            );
+            $this->stringValidator->validateMaxLength(
+                $value,
+                "metadata.custom.$key",
+                255,
+                $this->appendHandler
+            );
+        }
+    }
+}
