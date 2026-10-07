@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Report a security vulnerability
+    url: https://github.com/paysera/lib-checkout-integration-sdk/security/advisories/new
+    about: Report privately to the maintainers. Do not open a public issue.
+  - name: Paysera developer documentation
+    url: https://developers.paysera.com
+    about: Integration guides, API reference and sandbox onboarding.
