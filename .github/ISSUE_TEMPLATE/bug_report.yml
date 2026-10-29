@@ -1,0 +1,61 @@
+name: Bug report
+description: Report a problem with the SDK.
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for taking the time to report a problem.
+
+        **Do not report security vulnerabilities here.** Follow [SECURITY.md](https://github.com/paysera/lib-checkout-integration-sdk/blob/master/SECURITY.md) instead.
+  - type: input
+    id: sdk-version
+    attributes:
+      label: SDK version
+      description: The installed version, e.g. from `composer show paysera/lib-checkout-integration-sdk`.
+      placeholder: "3.x.y"
+    validations:
+      required: true
+  - type: input
+    id: php-version
+    attributes:
+      label: PHP version
+      description: Output of `php -v`.
+      placeholder: "8.2.12"
+    validations:
+      required: true
+  - type: input
+    id: platform
+    attributes:
+      label: Shop platform and plugin version
+      description: The e-commerce platform and the Paysera plugin version, if the SDK is used through a plugin. Leave empty for a direct integration.
+      placeholder: "WooCommerce 9.3.3, Paysera plugin 2.4.0"
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      description: The exact steps or a minimal code sample that triggers the problem.
+      placeholder: |
+        1. ...
+        2. ...
+        3. ...
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected behaviour
+    validations:
+      required: true
+  - type: textarea
+    id: actual
+    attributes:
+      label: Actual behaviour
+    validations:
+      required: true
+  - type: textarea
+    id: logs
+    attributes:
+      label: Log excerpt
+      description: Relevant log lines or the exception with its stack trace. Remove credentials, tokens and personal data before posting.
+      render: text
